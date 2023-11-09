@@ -24,11 +24,18 @@ func (e *Engine) Connect(pattern string, handlefunc HandleFunc) {}
 func (e *Engine) Head(pattern string, handlefunc HandleFunc)    {}
 
 // 实现服务器启动的方法
-func (e *Engine) Listen() error {
+func (e *Engine) Listen(addr string) error {
 	return nil
 }
 
 // 实现服务器平滑关闭的方法
 func (e *Engine) Shutdown() error {
-	return nil
+	return e.stop()
+}
+
+func New() *Engine {
+	return &Engine{
+		srv:    &http.Server{},
+		router: newRouter(),
+	}
 }
