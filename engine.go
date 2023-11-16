@@ -1,6 +1,9 @@
 package jee
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+)
 
 type Engine struct {
 	srv    *http.Server
@@ -10,7 +13,21 @@ type Engine struct {
 
 // 实现这个方法
 // Engine才可以称为一个Handler
-func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {}
+func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// 匹配路由
+	n, params, ok := e.router.getRouter(r.Method, r.URL.Path)
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("404 NOT FOUND"))
+		return
+	}
+
+	// 构造当前请求的上下文
+	c := NewContext(w, r)
+	c.params = params
+	log.Printf("request %s-%s", c.Method, c.Pattern)
+	n.handlefunc(c)
+}
 
 // HTTP的请求方法
 func (e *Engine) Get(pattern string, handlefunc HandleFunc)     {}
